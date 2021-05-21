@@ -1,0 +1,18 @@
+CODE
+    INTEGER X ;
+    CHAR Y1 := '5',Y2:= 'r';
+    CONST INTEGER CX := 65;
+    CONST STRING CS:= "DEAD inside";
+START
+    X := CX * 20;
+    WHILE (I LT J)
+    EXECUTE 
+    { 
+        A:=2;
+        A:=C+D/8;
+        WHEN B GE X DO
+        {
+            
+        }
+    }
+END.
