@@ -1,11 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "TS.h"
+char *Line;
 struct position
 {
     int line, column;
 } position = {1, 1};
-char *Line;
+
 void LineHandle(char *Entity)
 {
     if (Line == NULL)

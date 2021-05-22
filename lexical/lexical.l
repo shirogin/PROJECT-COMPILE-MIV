@@ -11,7 +11,7 @@ Digit_NZ [1-9]
 LOGIC_OP LT|EQ|NE|GT|LE|GE
 INTEGER [+-]?({Digit_NZ}{Digit}*|0)
 FLOAT {INTEGER}"."{Digit}*
-CHAR \'.\'
+CHAR \'[^']\'
 STRING \"[^\"\n]+\"
 
 TYPE (INTEGER)|(FLOAT)|(CHAR)|(STRING)
