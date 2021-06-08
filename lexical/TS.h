@@ -15,7 +15,15 @@ union TS
 struct Symbol
 {
     char *entity;
-    char declared; // 0 null 1 variable 2 const
+    char declared; 
+    /*
+    *   U: undefined
+    *   i : int 
+    *   I : const int
+    *   s : string
+    *   S : const string
+    *   
+    */
     TS value;
     Symbol *next;
 };
@@ -30,7 +38,7 @@ Symbol *createSymbol(char *entity)
 {
     Symbol *symbol = (Symbol *)malloc(sizeof(Symbol));
     symbol->entity = strdup(entity);
-    symbol->declared = 'F';
+    symbol->declared = 'N';
     symbol->next = NULL;
     return symbol;
 }
