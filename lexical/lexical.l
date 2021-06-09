@@ -44,38 +44,38 @@ ERROR .
 ":=" {LineHandle(yytext); return AFFECT;}
 {LOGIC_OP} {LineHandle(yytext); return LOGIC_OP;}
 
-{TYPE} {Insert(yytext,2); return TYPE;}
-"CONST" {Insert(yytext,2); return CONST;}
+{TYPE} {Insert(yytext,'K'); return TYPE;}
+"CONST" {Insert(yytext,'K'); return CONST;}
 
-"PROD" {Insert(yytext,2); return PROD;}
-"WHEN" {Insert(yytext,2); return WHEN;}
-"OTHERWISE" {Insert(yytext,2); return OTHERWISE;}
-"WHILE" {Insert(yytext,2); return WHILE;}
-"EXECUTE" {Insert(yytext,2); return EXECUTE;}
-"DO" {Insert(yytext,2); return DO;}
+"PROD" {Insert(yytext,'K'); return PROD;}
+"WHEN" {Insert(yytext,'K'); return WHEN;}
+"OTHERWISE" {Insert(yytext,'K'); return OTHERWISE;}
+"WHILE" {Insert(yytext,'K'); return WHILE;}
+"EXECUTE" {Insert(yytext,'K'); return EXECUTE;}
+"DO" {Insert(yytext,'K'); return DO;}
 
-"CODE" {Insert(yytext,2); return CODE;}
-"START" {Insert(yytext,2); return START;}
-"END\." {Insert(yytext,2); return END;}
+"CODE" {Insert(yytext,'K'); return CODE;}
+"START" {Insert(yytext,'K'); return START;}
+"END\." {Insert(yytext,'K'); return END;}
 
-{IDF} {Insert(yytext,0); return IDF;}
+{IDF} {Insert(yytext,'U'); return IDF;}
 
 {INTEGER} {    
     if(strlen(yytext)>8) printf("Unexpected INTEGER overflow %s",yytext);
     else {
-        Insert(yytext,1);
+        LineHandle(yytext);
         return INTEGER;
     }
 }
 {FLOAT} {
     if(strlen(yytext)>8) printf("Unexpected FLOAT overflow %s",yytext);
     else {
-        Insert(yytext,1);
+        LineHandle(yytext);
         return FLOAT;
     }
 }
-{CHAR} {Insert(yytext,1); return CHAR;}
-{STRING} {Insert(yytext,1); return STRING;}
+{CHAR} {LineHandle(yytext); return CHAR;}
+{STRING} {LineHandle(yytext); return STRING;}
 
 {EOI} {LineHandle(yytext); return EOI;}
 
@@ -85,7 +85,7 @@ ERROR .
     printf("\n%d:\t",position.line);
     free(Line);
     };
-{COMMENTS} {Insert(yytext,4);}
+{COMMENTS} {Insert(yytext,'&');}
 
 {WRONG_CHAR_LONG} {printf("CHAR has more than a character");}
 {WRONG_CHAR_EMPTY} {printf("CHAR is Empty");}

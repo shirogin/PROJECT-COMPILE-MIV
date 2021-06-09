@@ -1,5 +1,6 @@
 #include "TS.h"
 char *Line;
+Symbol *TS = NULL;
 struct position
 {
     int line, column;
@@ -20,8 +21,9 @@ void LexicalTreatment(char *Entity)
 {
     position.column = position.column + strlen(Entity);
 }
-void Insert(char *Entity, short type)
+void Insert(char *Entity, char type)
 {
     LineHandle(Entity);
     LexicalTreatment(Entity);
+    //addSymbol(&TS, Entity, type);
 }

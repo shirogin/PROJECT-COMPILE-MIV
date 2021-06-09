@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 typedef struct Symbol Symbol;
-typedef union TS TS;
+typedef union TV TV;
 
-union TS
+union TV
 {
     char Char;
     char *String;
@@ -15,43 +15,48 @@ union TS
 struct Symbol
 {
     char *entity;
-    char declared; 
-    /*
-    *   U: undefined
+    char declared;
+    /**
+     *  
+    *   K : keywords
+    *   & : commenTV
+    *   U : variables without types
     *   i : int 
     *   I : const int
     *   s : string
     *   S : const string
-    *   
+    *   c : char
+    *   C : const char
+    *   f : float
+    *   F : const float
     */
-    TS value;
+    TV value;
     Symbol *next;
 };
 
-struct Symbols
-{
-    short type;
-    Symbol *head;
-};
+//Table[0].type = 0;
+//Table[0].head; //=list variable
 
-Symbol *createSymbol(char *entity)
+Symbol *createSymbol(char *entity, char t)
 {
     Symbol *symbol = (Symbol *)malloc(sizeof(Symbol));
     symbol->entity = strdup(entity);
-    symbol->declared = 'N';
+    symbol->declared = t;
     symbol->next = NULL;
     return symbol;
 }
-
-void addSymbol(Symbol **ahead, char *entity)
+// declare(symb,type)
+// declared(symb)
+//
+void addSymbol(Symbol **ahead, char *entity, char t)
 {
     if ((*ahead) == NULL)
-        (*ahead) = createSymbol(entity);
+        (*ahead) = createSymbol(entity, t);
     else
     {
         Symbol *head = *ahead;
         while (head->next != NULL)
             head = head->next;
-        head->next = createSymbol(entity);
+        head->next = createSymbol(entity, t);
     }
 }
