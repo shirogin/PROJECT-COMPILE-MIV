@@ -44,7 +44,7 @@ ERROR .
 ":=" {LineHandle(yytext); return AFFECT;}
 {LOGIC_OP} {LineHandle(yytext); return LOGIC_OP;}
 
-{TYPE} {LineHandle(yytext); sscanf(yytext,"%s",yylval.mySTRING); return TYPE;}
+{TYPE} {LineHandle(yytext); yylval.mySTRING=strdup(yytext); return TYPE;}
 "CONST" {LineHandle(yytext); return CONST;}
 
 "PROD" {LineHandle(yytext); return PROD;}
@@ -58,12 +58,13 @@ ERROR .
 "START" {LineHandle(yytext); return START;}
 "END\." {LineHandle(yytext); return END;}
 
-{IDF} {Insert(yytext,'U'); sscanf(yytext,"%s",yylval.mySTRING); return IDF;}
+{IDF} {Insert(yytext,'U'); yylval.mySTRING=strdup(yytext); return IDF;}
 
 {INTEGER} {    
     if(strlen(yytext)>8) printf("Unexpected INTEGER overflow %s",yytext);
     else {
         LineHandle(yytext);
+        sscanf(yytext,"%d",&yylval.myINT);
         return INTEGER;
     }
 }
@@ -71,11 +72,18 @@ ERROR .
     if(strlen(yytext)>8) printf("Unexpected FLOAT overflow %s",yytext);
     else {
         LineHandle(yytext);
+        sscanf(yytext,"%f",&yylval.myFLOAT);
         return FLOAT;
     }
 }
-{CHAR} {LineHandle(yytext); return CHAR;}
-{STRING} {LineHandle(yytext); return STRING;}
+{CHAR} {LineHandle(yytext); yylval.myCHAR=yytext[1]; return CHAR;}
+{STRING} {
+    LineHandle(yytext); 
+    yytext[strlen(yytext)-1]='\0';
+    yylval.mySTRING=strdup(++yytext);
+    
+    return STRING;
+    }
 
 {EOI} {LineHandle(yytext); return EOI;}
 

@@ -1,7 +1,8 @@
 CODE
     INTEGER X ;
     CHAR Y1 := '5',Y2:= 'r';
-    CONST INTEGER CX := 65;
+    FLOAT F:=65.65;
+    CONST INTEGER CX := 65,D:=20;
     CONST STRING CS:= "DEAD inside";
 START
     X := CX * 20;

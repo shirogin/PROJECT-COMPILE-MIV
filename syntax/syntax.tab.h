@@ -80,7 +80,7 @@ typedef union YYSTYPE
 
     int myINT;
     char myCHAR;
-    char mySTRING[100];
+    char* mySTRING;
     float myFLOAT;
 
 

@@ -1,9 +1,11 @@
 #include "../lib.h"
+const int SymbolSize = sizeof(Symbol);
 
 Symbol *createSymbol(char *entity, char t)
 {
-    Symbol *symbol = (Symbol *)malloc(sizeof(Symbol));
-
+    Symbol *symbol = (Symbol *)calloc(1, SymbolSize);
+    if (symbol == NULL)
+        exit(-1);
     symbol->entity = strdup(entity);
     symbol->type = t;
     symbol->next = NULL;
@@ -60,26 +62,22 @@ int assignVal(Symbol *head, char *entity, char type, TV value)
             if (temp->type == 'i')
                 temp->value.Integer = value.Integer;
             else if (temp->type == 'f')
-                temp->value.Integer = value.Float;
+                temp->value.Float = value.Float;
+
             else if (temp->type == 'c')
                 temp->value.Char = value.Char;
             else if (temp->type == 's')
                 temp->value.String = value.String;
             else if (temp->type == 'I' || temp->type == 'F' || temp->type == 'C' || temp->type == 'S')
                 printf("Can't assign value to a CONSTANT!!\n");
+            return 1;
         }
         else
-        {
-            printf("Can't assign value, Uncompatible types\n");
-            return 0;
-        }
-        return 1;
+            //printf("Can't assign value, Uncompatible types\n");
+            return -1;
     }
     else
-    {
-        printf("Can't assign value, Symbol not found\n");
         return 0;
-    }
 }
 
 int declareConst(Symbol *head, char *entity, char type, TV value)
@@ -108,12 +106,12 @@ int declareConst(Symbol *head, char *entity, char type, TV value)
         }
         return 1;
     }
-    else
-    {
-        //printf("Can't declare, Symbol not found or already declared\n");
+    else if (temp != NULL)
         return 0;
-    }
+    else
+        return -1;
 }
+
 int declareVariable(Symbol *head, char *entity, char type)
 {
     Symbol *temp = getSymbol(head, entity);
@@ -123,11 +121,10 @@ int declareVariable(Symbol *head, char *entity, char type)
         temp->type = tolower(type);
         return 1;
     }
-    else
-    {
-        //printf("Can't declare, Symbol not found or already declared\n");
+    else if (temp != NULL)
         return 0;
-    }
+    else
+        return -1;
 }
 
 void printList(Symbol *head)
@@ -139,17 +136,18 @@ void printList(Symbol *head)
         if (head->type == 'i' || head->type == 'I')
             printf("    %d |", head->value.Integer);
         else if (head->type == 'f' || head->type == 'F')
-            printf("|   %f  |", head->value.Float);
+            printf("   %f  |", head->value.Float);
         else if (head->type == 'c' || head->type == 'C')
-            printf("|   %c  |", head->value.Char);
+            printf("   '%c'  |", head->value.Char);
         else if (head->type == 's' || head->type == 'S')
-            printf("|   %s  |", head->value.String);
+            printf("   \"%s\"  |", head->value.String);
         else if (head->type == 'U' || head->type == '&' || head->type == 'K')
             printf(" ");
         head = head->next;
         printf("\n-----------------------\n");
     }
 }
+
 void freeList(Symbol **head_ref)
 {
     Symbol *next = *head_ref, *last = NULL;

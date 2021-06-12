@@ -12,7 +12,7 @@
     TV val;
     int yylex();
     int yyerror(char* msg); 
-    char T;
+    char IT,VT;
     FILE *yyin;
 
 %}
@@ -32,7 +32,7 @@
 %union {
     int myINT;
     char myCHAR;
-    char mySTRING[100];
+    char* mySTRING;
     float myFLOAT;
 }
 
@@ -43,22 +43,43 @@ PROGRAM: CODE DECLARATIONS START INSTRACTIONS END{
     printf("Program ended well");
 };
 MTYPE : TYPE{
-    T=$1[0];
+    IT=$1[0];
 };
 DECLARATIONS: 
-    | MTYPE IDF NASSIGN ListIDF EOI DECLARATIONS
+    | MTYPE VARIDF ListIDF EOI DECLARATIONS
     | CONST MTYPE CONSTIDF ListCONSTIDF EOI DECLARATIONS;
 CONSTIDF: 
     IDF ASSIGN{
-        declareConst(TS,$1,T,val);
+        if(VT==IT){
+            int x=declareConst(TS,$1,VT,val);
+            if(x==0)
+                printf("Can't declare, Const not found \n");
+            else if(x==-1)
+                printf("Can't declare, Const has been already declared\n");
+        }else printf("Can't declare, Trying to declare Const with diffrent type of value\n");
     };
-VALUE: INTEGER{ val.Integer=$1; } 
-    | FLOAT { val.Float=$1; } 
-    | STRING { val.String=$1; } 
-    | CHAR{ val.Char=$1; } ;
+VARIDF: IDF NASSIGN{
+        int x=declareVariable(TS,$1,IT);
+        if(x==0)
+                printf("Can't declare, Variable not found \n");
+        else if(x==-1)
+            printf("Can't declare, Variable has been already declared\n");
+        else if(VT==IT ) {
+            x=assignVal(TS,$1,tolower(VT),val);
+            if(x==0)
+                printf("Can't Assign, Variable not found \n");
+            else if(x==-1)
+                printf("Can't Assign, Trying to assign variable with diffrent type of value then the type declared with\n");
+        }
+        else if( VT!='U') printf("Can't Assign value, Trying to assign variable with diffrent type of value then the type declared with\n");
+    };
+VALUE: INTEGER{ VT='I'; val.Integer=$1; } 
+    | FLOAT { VT='F'; val.Float=$1;} 
+    | STRING { VT='S'; val.String=strdup($1);} 
+    | CHAR{ VT='C'; val.Char=$1; printf("%c",$1); } ;
 ListIDF:  
-    | SEPARATOR IDF NASSIGN ListIDF;
-NASSIGN: 
+    | SEPARATOR VARIDF ListIDF;
+NASSIGN: {VT='U'}
     | ASSIGN;
 ASSIGN: 
     AFFECT VALUE;
@@ -83,11 +104,17 @@ CONDITION:
 EXPRESSIONS:  
     | ARTH_OP VALIDFP EXPRESSIONS;
 VALIDFP: 
-    IDF
+    IDF{
+        Symbol * temp=getSymbol(TS,$1);
+        if(temp==NULL)
+            printf("IDF not found!!");
+        else if(temp->type=='U')
+            printf("Can't access IDF, IDF not declared");
+    }
     | VALUE
     | PROD PARENTHESIS_B PARAMETERS PARENTHESIS_E;
 PARAMETERS: 
-    VALIDFP PARAMETERSLIST;
+    VALIDFP EXPRESSIONS PARAMETERSLIST;
 PARAMETERSLIST: 
     | SEPARATOR PARAMETERS;
 %%
