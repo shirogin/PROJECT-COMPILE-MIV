@@ -1,6 +1,14 @@
 #include "TS.h"
 char *Line;
 Symbol *TS = NULL;
+void printTS()
+{
+    printList(TS);
+}
+void freeTS()
+{
+    freeList(&TS);
+}
 struct position
 {
     int line, column;
@@ -25,5 +33,6 @@ void Insert(char *Entity, char type)
 {
     LineHandle(Entity);
     LexicalTreatment(Entity);
-    //addSymbol(&TS, Entity, type);
+    if (getSymbol(TS, Entity) == NULL)
+        push(&TS, Entity, type);
 }

@@ -4,7 +4,7 @@
 
 int main()
 {
-    struct Symbol *head = NULL;
+    Symbol *head = NULL;
     TV tv;
     tv.Integer = 10;
 

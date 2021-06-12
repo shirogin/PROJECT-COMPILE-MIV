@@ -1,102 +1,41 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-typedef struct Symbol Symbol;
-typedef union TV TV;
-
-union TV
-{
-    char Char;
-    char *String;
-    int Integer;
-    float Float;
-};
-
-struct Symbol
-{
-    char *entity;
-    char type;
-    /**
-    *   K : keywords
-    *   & : commenTV
-    *   U : variables without types
-    *   i : int 
-    *   I : const int
-    *   s : string
-    *   S : const string
-    *   c : char
-    *   C : const char
-    *   f : float
-    *   F : const float
-    */
-    TV value;
-    Symbol *next;
-};
-
-//Table[0].type = 0;
-//Table[0].head; //=list variable
+#include "../lib.h"
 
 Symbol *createSymbol(char *entity, char t)
 {
     Symbol *symbol = (Symbol *)malloc(sizeof(Symbol));
+
     symbol->entity = strdup(entity);
     symbol->type = t;
     symbol->next = NULL;
     return symbol;
 }
-// declare(symb,type)
-// type(symb)
-//
-void addSymbol(Symbol **ahead, char *entity, char t)
-{
-    if ((*ahead) == NULL)
-        (*ahead) = createSymbol(entity, t);
-    else
-    {
-        Symbol *head = *ahead;
-        while (head->next != NULL)
-            head = head->next;
-        head->next = createSymbol(entity, t);
-    }
-}
 
-void append(struct Symbol **head_ref, char *entity, char type)
+void append(Symbol **head_ref, char *entity, char type)
 {
-    struct Symbol *new_node = (struct Symbol *)malloc(sizeof(struct Symbol));
-
-    new_node->entity = entity;
-    new_node->type = type;
+    Symbol *new_node = createSymbol(entity, type);
 
     new_node->next = (*head_ref);
     (*head_ref) = new_node;
 }
 
-void push(struct Symbol **head_ref, char *entity, char type)
+void push(Symbol **head_ref, char *entity, char type)
 {
-    struct Symbol *new_node = (struct Symbol *)malloc(sizeof(struct Symbol));
-
-    struct Symbol *last = *head_ref;
-
-    new_node->entity = entity;
-    new_node->type = type;
-
-    new_node->next = NULL;
+    Symbol *new_node = createSymbol(entity, type);
 
     if (*head_ref == NULL)
     {
         *head_ref = new_node;
         return;
     }
-
+    Symbol *last = *head_ref;
     while (last->next != NULL)
         last = last->next;
-
     last->next = new_node;
 }
 
-Symbol *getSymbol(struct Symbol *head, char *entity)
+Symbol *getSymbol(Symbol *head, char *entity)
 {
-    struct Symbol *current = head;
+    Symbol *current = head;
     int found = 0;
 
     while (current != NULL && found == 0)
@@ -110,9 +49,9 @@ Symbol *getSymbol(struct Symbol *head, char *entity)
     return current;
 }
 
-int assignVal(struct Symbol *head, char *entity, char type, TV value)
+int assignVal(Symbol *head, char *entity, char type, TV value)
 {
-    struct Symbol *temp = getSymbol(head, entity);
+    Symbol *temp = getSymbol(head, entity);
 
     if (temp != NULL)
     {
@@ -143,46 +82,81 @@ int assignVal(struct Symbol *head, char *entity, char type, TV value)
     }
 }
 
-int declare(struct Symbol *head, char *entity, char type, TV value)
+int declareConst(Symbol *head, char *entity, char type, TV value)
 {
-    struct Symbol *temp = getSymbol(head, entity);
+    Symbol *temp = getSymbol(head, entity);
 
     if (temp != NULL && temp->type == 'U')
     {
         temp->type = type;
-        if (temp->type == 'I')
+        switch (type)
+        {
+        case 'I':
             temp->value.Integer = value.Integer;
-        else if (temp->type == 'F')
+            break;
+        case 'F':
             temp->value.Integer = value.Float;
-        else if (temp->type == 'C')
+            break;
+        case 'C':
             temp->value.Char = value.Char;
-        else if (temp->type == 'S')
+            break;
+        case 'S':
             temp->value.String = value.String;
+            break;
+        default:
+            break;
+        }
         return 1;
     }
     else
     {
-        printf("Can't declare, Symbol not found or already declared\n");
+        //printf("Can't declare, Symbol not found or already declared\n");
+        return 0;
+    }
+}
+int declareVariable(Symbol *head, char *entity, char type)
+{
+    Symbol *temp = getSymbol(head, entity);
+
+    if (temp != NULL && temp->type == 'U')
+    {
+        temp->type = tolower(type);
+        return 1;
+    }
+    else
+    {
+        //printf("Can't declare, Symbol not found or already declared\n");
         return 0;
     }
 }
 
-void printList(struct Symbol *head)
+void printList(Symbol *head)
 {
+    printf("\n-----------------------\n");
     while (head != NULL)
     {
-        printf(" %s-%c", head->entity, head->type);
+        printf("| %s |  %c  |", head->entity, head->type);
         if (head->type == 'i' || head->type == 'I')
-            printf("-%d ", head->value.Integer);
+            printf("    %d |", head->value.Integer);
         else if (head->type == 'f' || head->type == 'F')
-            printf("-%f ", head->value.Float);
+            printf("|   %f  |", head->value.Float);
         else if (head->type == 'c' || head->type == 'C')
-            printf("-%c ", head->value.Char);
+            printf("|   %c  |", head->value.Char);
         else if (head->type == 's' || head->type == 'S')
-            printf("-%s ", head->value.String);
+            printf("|   %s  |", head->value.String);
         else if (head->type == 'U' || head->type == '&' || head->type == 'K')
             printf(" ");
         head = head->next;
+        printf("\n-----------------------\n");
     }
-    printf("\n");
+}
+void freeList(Symbol **head_ref)
+{
+    Symbol *next = *head_ref, *last = NULL;
+    while (next != NULL)
+    {
+        last = next;
+        next = next->next;
+        free(last);
+    }
 }

@@ -44,21 +44,21 @@ ERROR .
 ":=" {LineHandle(yytext); return AFFECT;}
 {LOGIC_OP} {LineHandle(yytext); return LOGIC_OP;}
 
-{TYPE} {Insert(yytext,'K'); return TYPE;}
-"CONST" {Insert(yytext,'K'); return CONST;}
+{TYPE} {LineHandle(yytext); sscanf(yytext,"%s",yylval.mySTRING); return TYPE;}
+"CONST" {LineHandle(yytext); return CONST;}
 
-"PROD" {Insert(yytext,'K'); return PROD;}
-"WHEN" {Insert(yytext,'K'); return WHEN;}
-"OTHERWISE" {Insert(yytext,'K'); return OTHERWISE;}
-"WHILE" {Insert(yytext,'K'); return WHILE;}
-"EXECUTE" {Insert(yytext,'K'); return EXECUTE;}
-"DO" {Insert(yytext,'K'); return DO;}
+"PROD" {LineHandle(yytext); return PROD;}
+"WHEN" {LineHandle(yytext); return WHEN;}
+"OTHERWISE" {LineHandle(yytext); return OTHERWISE;}
+"WHILE" {LineHandle(yytext); return WHILE;}
+"EXECUTE" {LineHandle(yytext); return EXECUTE;}
+"DO" {LineHandle(yytext); return DO;}
 
-"CODE" {Insert(yytext,'K'); return CODE;}
-"START" {Insert(yytext,'K'); return START;}
-"END\." {Insert(yytext,'K'); return END;}
+"CODE" {LineHandle(yytext); return CODE;}
+"START" {LineHandle(yytext); return START;}
+"END\." {LineHandle(yytext); return END;}
 
-{IDF} {Insert(yytext,'U'); return IDF;}
+{IDF} {Insert(yytext,'U'); sscanf(yytext,"%s",yylval.mySTRING); return IDF;}
 
 {INTEGER} {    
     if(strlen(yytext)>8) printf("Unexpected INTEGER overflow %s",yytext);
@@ -85,7 +85,7 @@ ERROR .
     printf("\n%d:\t",position.line);
     free(Line);
     };
-{COMMENTS} {Insert(yytext,'&');}
+{COMMENTS} {LineHandle(yytext);}
 
 {WRONG_CHAR_LONG} {printf("CHAR has more than a character");}
 {WRONG_CHAR_EMPTY} {printf("CHAR is Empty");}

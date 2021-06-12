@@ -43,21 +43,21 @@
      START = 259,
      END = 260,
      CONST = 261,
-     IDF = 262,
-     EOI = 263,
-     PROD = 264,
-     SEPARATOR = 265,
-     BRACKETS_B = 266,
-     BRACKETS_E = 267,
-     C_BRACKETS_B = 268,
-     C_BRACKETS_E = 269,
-     PARENTHESIS_B = 270,
-     PARENTHESIS_E = 271,
-     TYPE = 272,
-     INTEGER = 273,
-     FLOAT = 274,
-     CHAR = 275,
-     STRING = 276,
+     EOI = 262,
+     PROD = 263,
+     SEPARATOR = 264,
+     BRACKETS_B = 265,
+     BRACKETS_E = 266,
+     C_BRACKETS_B = 267,
+     C_BRACKETS_E = 268,
+     PARENTHESIS_B = 269,
+     PARENTHESIS_E = 270,
+     TYPE = 271,
+     STRING = 272,
+     IDF = 273,
+     INTEGER = 274,
+     FLOAT = 275,
+     CHAR = 276,
      WHEN = 277,
      OTHERWISE = 278,
      WHILE = 279,
@@ -76,7 +76,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 25 ".\\syntax.y"
+#line 32 ".\\syntax.y"
 
     int myINT;
     char myCHAR;
