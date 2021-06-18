@@ -1,5 +1,5 @@
 CODE
-    INTEGER X ;
+    INTEGER X;
     CHAR Y1 := '5',Y2:= 'r';
     FLOAT F:=65.65;
     CONST INTEGER CX := 65,D:=20;
@@ -24,4 +24,5 @@ START
             A:=C+D/8;
         }
     }
+    IF()
 END.

@@ -4,6 +4,8 @@
 #include <ctype.h>
 typedef struct Symbol Symbol;
 typedef union TV TV;
+typedef struct quad_node quad_node;
+typedef struct Quad Quad;
 
 union TV
 {
@@ -32,6 +34,24 @@ struct Symbol
     */
     TV value;
     Symbol *next;
+};
+
+struct quad_node
+{
+    int num;
+    Symbol *op1;
+    Symbol *op2;
+    Symbol *op3;
+    Symbol *op4;
+    struct quad_node *next;
+    struct quad_node *prev;
+};
+
+struct Quad
+{
+    quad_node *head;
+    quad_node *tail;
+    int length;
 };
 
 Symbol *createSymbol(char *entity, char t);

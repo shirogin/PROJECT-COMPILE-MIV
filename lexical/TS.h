@@ -6,6 +6,7 @@ Symbol *createSymbol(char *entity, char t)
     Symbol *symbol = (Symbol *)calloc(1, SymbolSize);
     if (symbol == NULL)
         exit(-1);
+    // printf("%d", strlen(entity));
     symbol->entity = strdup(entity);
     symbol->type = t;
     symbol->next = NULL;
