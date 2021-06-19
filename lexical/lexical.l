@@ -41,7 +41,7 @@ ERROR .
 ")" {LineHandle(yytext); return PARENTHESIS_E;}
 
 {ARTH_OP} {LineHandle(yytext); return ARTH_OP;}
-":=" {LineHandle(yytext); return AFFECT;}
+":=" {LineHandle(yytext); yylval.mySTRING=strdup(yytext); return AFFECT;}
 {LOGIC_OP} {LineHandle(yytext); return LOGIC_OP;}
 
 {TYPE} {LineHandle(yytext); yylval.mySTRING=strdup(yytext); return TYPE;}

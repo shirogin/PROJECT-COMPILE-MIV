@@ -1,28 +1,12 @@
 CODE
-    INTEGER X;
-    CHAR Y1 := '5',Y2:= 'r';
-    FLOAT F:=65.65;
-    CONST INTEGER CX := 65,D:=20;
-    CONST STRING CS:= "DEAD inside";
+    INTEGER I:=0,S:=0;
+    CONST INTEGER N:=20;
 START
-    X := CX * 20;
-    WHILE (I LT J)
+    
+    WHILE (I LT N)
     EXECUTE 
     { 
-        A:=2;
-        A:=PROD(A+B,5+D)+D/8;
-        WHILE (I LT J)
-        EXECUTE 
-        { 
-            A:=2;
-            A:=C+D/8;
-            
-        }
-        WHEN (I LT K)
-        DO
-        {
-            A:=C+D/8;
-        }
+        S:= S + 1;
     }
     
 END.

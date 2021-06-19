@@ -5,6 +5,8 @@
     } position;
     extern void printTS();
     extern Symbol *TS ;
+    Symbol * TempS=NULL , 
+        *temp=NULL;
     extern char *yytext;
     extern void freeTS();
     extern char *Line;
@@ -25,7 +27,7 @@
 %token <myFLOAT>FLOAT 
 %token <myCHAR>CHAR 
 %token WHEN OTHERWISE WHILE EXECUTE DO
-%token AFFECT ARTH_OP LOGIC_OP
+%token <mySTRING>AFFECT ARTH_OP LOGIC_OP
 
 %start PROGRAM
 
@@ -84,9 +86,27 @@ ASSIGN:
 ListCONSTIDF: 
     | SEPARATOR CONSTIDF ListCONSTIDF;
 INSTRACTIONS: 
-    | IDF AFFECT VALIDFP EXPRESSIONS EOI INSTRACTIONS
+    | AFFECTEXPRESSION INSTRACTIONS
     | WHILE CONDITION EXECUTE INSTRACTIONSSET INSTRACTIONS
     | WHENINSTRACTION INSTRACTIONS;
+AFFECTEXPRESSION: AFFECTATION VALIDFP EXPRESSIONS EOI{
+    printList(TempS);
+};
+AFFECTATION: IDF AFFECT{
+    temp=getSymbol(TS,$1);
+    if(temp==NULL)
+            printf("IDF not found!!");
+    else if(temp->type=='U')
+        printf("Can't access IDF, IDF not declared");
+    else {
+        pushSymbol(&TempS,temp);
+        temp=createSymbol(":=",'A');
+        pushSymbol(&TempS,temp);
+        
+    }
+    //push(&TempS,)
+    
+};
 WHENINSTRACTION: 
     WHEN CONDITION DO INSTRACTIONSSET OTHERWISEINSTRACTIONS ;
 OTHERWISEINSTRACTIONS: 
@@ -138,7 +158,7 @@ int main(int argc, char *argv[]){
         printf("\nProgram Ended\n");
         printf("\n");
         printTS();
-        print
+        printQuadList();
         freeQuads();
         freeTS();
     } 

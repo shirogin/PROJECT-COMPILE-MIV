@@ -23,7 +23,14 @@ void append(Symbol **head_ref, char *entity, char type)
 
 void push(Symbol **head_ref, char *entity, char type)
 {
-    Symbol *new_node = createSymbol(entity, type);
+    pushSymbol(head_ref, createSymbol(entity, type));
+}
+void copySymbol(Symbol *new_node)
+{
+    return createSymbol(new_node->entity, new_node->type);
+}
+void pushSymbol(Symbol **head_ref, Symbol *new_node)
+{
 
     if (*head_ref == NULL)
     {

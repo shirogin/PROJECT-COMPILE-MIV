@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 typedef struct Symbol Symbol;
+typedef struct TS TS;
 typedef union TV TV;
 typedef struct quad_node quad_node;
 typedef struct Quad Quad;
@@ -21,7 +22,7 @@ struct Symbol
     char type;
     /**
     *   K : keywords
-    *   & : commenTV
+    *   A : AFFECTATION
     *   U : variables without types
     *   i : int 
     *   I : const int
@@ -36,28 +37,10 @@ struct Symbol
     Symbol *next;
 };
 
-struct quad_node
-{
-    int num;
-    Symbol *op1;
-    Symbol *op2;
-    Symbol *op3;
-    Symbol *op4;
-    struct quad_node *next;
-    struct quad_node *prev;
-};
-
-struct Quad
-{
-    quad_node *head;
-    quad_node *tail;
-    int length;
-};
-
 Symbol *createSymbol(char *entity, char t);
-
+void copySymbol(Symbol *new_node);
 void push(Symbol **head_ref, char *entity, char type);
-
+void pushSymbol(Symbol **head_ref, Symbol *new_node);
 Symbol *getSymbol(Symbol *head, char *entity);
 
 int assignVal(Symbol *head, char *entity, char type, TV value);
