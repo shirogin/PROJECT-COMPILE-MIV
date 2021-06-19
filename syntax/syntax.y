@@ -1,5 +1,5 @@
 %{
-    #include "../lib.h"
+    #include "./quad.h"
     extern struct position{
         int line,column;
     } position;
@@ -39,9 +39,7 @@
 %type <myCHAR> EOI
 
 %%
-PROGRAM: CODE DECLARATIONS START INSTRACTIONS END{
-    printf("Program ended well");
-};
+PROGRAM: CODE DECLARATIONS START INSTRACTIONS END;
 MTYPE : TYPE{
     IT=$1[0];
 };
@@ -131,26 +129,23 @@ int yyerror(char* msg){
 }
 
 int main(int argc, char *argv[]){
-    //F = fopen("Lexical.txt","w");
-    //QuadF = fopen("Quadriples.txt","w");
-    //DeclarationF=fopen("DeclarationF.txt","w");
-    /*if( F== NULL)
-        {printf("file couldn't be created");
-        return (-1);}
-    fprintf(F,"1-\t");*/
     yyin = fopen(argv[1], "r");
-    
     if (yyin == NULL)
         printf("File doesn't exist");
-    else yyparse();
-    printTS();
-    freeTS();
-    printf("\nProgram Ended\n");
-    printf("\n");
+    else{
+        QuadInit();
+        yyparse();
+        printf("\nProgram Ended\n");
+        printf("\n");
+        printTS();
+        print
+        freeQuads();
+        freeTS();
+    } 
     
-    //print_TS();
-    //fclose(F);
-    //print_qdr(ListQdr);
+    
+    
+    fclose(yyin);
 
     return 0;
 }

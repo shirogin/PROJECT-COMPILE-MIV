@@ -24,5 +24,5 @@ START
             A:=C+D/8;
         }
     }
-    IF()
+    
 END.

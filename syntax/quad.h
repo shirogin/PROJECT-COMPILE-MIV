@@ -1,8 +1,55 @@
-#include "../lexical/TS.h"
+#include "../lib.h"
+//-------------------------------QUAD Def-------------------------------------------
 
+struct quad_node
+{
+    int num;
+    Symbol *op1;
+    Symbol *op2;
+    Symbol *op3;
+    Symbol *op4;
+    struct quad_node *next;
+    struct quad_node *prev;
+};
+
+struct Quad
+{
+    quad_node *head;
+    quad_node *tail;
+    int length;
+};
+
+void QuadInit();
+
+Quad *createQuad();
+
+quad_node *createQuadNode(Symbol *op1, Symbol *op2, Symbol *op3, Symbol *op4);
+
+void appendQuad(Symbol *op1, Symbol *op2, Symbol *op3, Symbol *op4);
+
+void pushQuad(Symbol *op1, Symbol *op2, Symbol *op3, Symbol *op4);
+
+void printQuadList();
+void freeQuads();
+//-----------------------------------Quad Settings ------------------------------
+const int QuadNodeSize = sizeof(quad_node);
+const int QuadSize = sizeof(Quad);
+Quad *quads;
+void QuadInit()
+{
+    quads = createQuad();
+}
+Quad *createQuad()
+{
+    Quad *quad = (Quad *)calloc(1, QuadSize);
+    quad->head = NULL;
+    quad->tail = NULL;
+    quad->length = 0;
+    return quad;
+}
 quad_node *createQuadNode(Symbol *op1, Symbol *op2, Symbol *op3, Symbol *op4)
 {
-    quad_node *quad = (quad_node *)calloc(1, sizeof(quad_node));
+    quad_node *quad = (quad_node *)calloc(1, QuadNodeSize);
     if (quad == NULL)
         exit(-1);
     quad->op1 = op1;
@@ -14,71 +61,65 @@ quad_node *createQuadNode(Symbol *op1, Symbol *op2, Symbol *op3, Symbol *op4)
     return quad;
 }
 
-Quad *createQuad()
-{
-    Quad *quad = (Quad *)calloc(1, sizeof(Quad));
-    quad->head = NULL;
-    quad->tail = NULL;
-    quad->length = 0;
-    return quad;
-}
-
-void appendQuad(Quad **head_ref, Symbol *op1, Symbol *op2, Symbol *op3, Symbol *op4)
+void appendQuad(Symbol *op1, Symbol *op2, Symbol *op3, Symbol *op4)
 {
     quad_node *newNode = createQuadNode(op1, op2, op3, op4);
 
-    if ((*head_ref)->length == 0)
+    if (quads->length == 0)
     {
-        (*head_ref)->head = newNode;
-        (*head_ref)->tail = newNode;
+        quads->head = newNode;
+        quads->tail = newNode;
     }
     else
     {
-        (*head_ref)->tail->prev = newNode;
-        newNode->next = (*head_ref)->head;
-        (*head_ref)->head = newNode;
+        quads->tail->prev = newNode;
+        newNode->next = quads->head;
+        quads->head = newNode;
     }
-    (*head_ref)->length++;
+    quads->length++;
 }
 
-void pushQuad(Quad **head_ref, Symbol *op1, Symbol *op2, Symbol *op3, Symbol *op4)
+void pushQuad(Symbol *op1, Symbol *op2, Symbol *op3, Symbol *op4)
 {
     quad_node *newNode = createQuadNode(op1, op2, op3, op4);
 
-    if ((*head_ref)->length == 0)
+    if (quads->length == 0)
     {
-        (*head_ref)->head = newNode;
-        (*head_ref)->tail = newNode;
+        quads->head = newNode;
+        quads->tail = newNode;
     }
     else
     {
-        (*head_ref)->tail->next = newNode;
-        newNode->prev = (*head_ref)->tail;
-        (*head_ref)->tail = newNode;
+        quads->tail->next = newNode;
+        newNode->prev = quads->tail;
+        quads->tail = newNode;
     }
-    (*head_ref)->length++;
+    quads->length++;
 }
 
-void printQuadList(Quad *quad)
+void printQuadList()
 {
+    quad_node *head = quads->head;
     printf("\n------------------------------------------\n");
     int i = 1;
-    while (quad->head != NULL)
+    while (head != NULL)
     {
-        printf("%d- | %s | %s | %s | %s |", i, quad->head->op1->entity, quad->head->op2->entity, quad->head->op3->entity, quad->head->op4->entity);
-        quad->head = quad->head->next;
+        printf("%d- | %s | %s | %s | %s |", i, head->op1->entity, head->op2->entity, head->op3->entity, head->op4->entity);
+        head = head->next;
         i++;
         printf("\n------------------------------------------\n");
     }
 }
 
-// void freeList(Symbol **head_ref)
-// {
-//     Symbol *next = *head_ref, *last = NULL;
-//     while (next != NULL)
-//     {
-//         last = next;
-//         next = next->next;
-//         free(last);
-//     }
-// }
+void freeQuads()
+{
+    quad_node *next = quads->head, *last = NULL;
+    while (next != NULL)
+    {
+        last = next;
+        next = next->next;
+        free(last);
+    }
+    quads->head = NULL;
+    quads->tail = NULL;
+}
