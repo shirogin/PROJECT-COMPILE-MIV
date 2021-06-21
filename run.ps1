@@ -1,3 +1,4 @@
+clear
 cd .\syntax
 bison -d .\syntax.y
 cd ..\lexical

@@ -1,0 +1,9 @@
+{
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "*.c": "c",
+        "presymbol.h": "c",
+        "syntax.h": "c",
+        "lib.h": "c"
+    }
+}

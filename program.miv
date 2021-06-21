@@ -1,12 +1,24 @@
 CODE
-    INTEGER I:=0,S:=0;
+    INTEGER I:=1,S:=0;
+    STRING S1,S2:="Yolo";
     CONST INTEGER N:=20;
 START
-    
+    S1:= S2 + " not True";
     WHILE (I LT N)
     EXECUTE 
-    { 
-        S:= S + 1;
+    {
+        S:= S + I;
+        I:= I + 1;
+        WHEN ( I LT 5) 
+        DO
+        {
+            I:= I + 1;
+        }
+        OTHERWISE WHEN ( I GT 10) 
+        DO
+        {
+            I:= I + 2;
+        }
     }
     
 END.

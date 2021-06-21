@@ -18,7 +18,7 @@ void LineHandle(char *Entity)
 {
     if (Line == NULL)
     {
-        Line = (char *)malloc(500 * sizeof(char));
+        Line = (char *)calloc(1, 500 * sizeof(char));
         strcpy(Line, Entity);
     }
     else

@@ -5,8 +5,8 @@
     } position;
     extern void printTS();
     extern Symbol *TS ;
-    Symbol * TempS=NULL , 
-        *temp=NULL;
+    PreSymbol * TempS=NULL,*EtiqueL=NULL,*EtiqueE=NULL;
+    Symbol *temp=NULL;
     extern char *yytext;
     extern void freeTS();
     extern char *Line;
@@ -42,105 +42,120 @@
 
 %%
 PROGRAM: CODE DECLARATIONS START INSTRACTIONS END;
-MTYPE : TYPE{
-    IT=$1[0];
-};
-DECLARATIONS: 
-    | MTYPE VARIDF ListIDF EOI DECLARATIONS
+MTYPE : TYPE{ IT=$1[0]; };
+DECLARATIONS: | MTYPE VARIDF ListIDF EOI DECLARATIONS
     | CONST MTYPE CONSTIDF ListCONSTIDF EOI DECLARATIONS;
 CONSTIDF: 
     IDF ASSIGN{
         if(VT==IT){
             int x=declareConst(TS,$1,VT,val);
-            if(x==0)
-                printf("Can't declare, Const not found \n");
-            else if(x==-1)
-                printf("Can't declare, Const has been already declared\n");
+            if(x==0) printf("Can't declare, Const not found \n");
+            else if(x==-1) printf("Can't declare, Const has been already declared\n");
         }else printf("Can't declare, Trying to declare Const with diffrent type of value\n");
     };
 VARIDF: IDF NASSIGN{
         int x=declareVariable(TS,$1,IT);
-        if(x==0)
-                printf("Can't declare, Variable not found \n");
-        else if(x==-1)
-            printf("Can't declare, Variable has been already declared\n");
+        if(x==0) printf("Can't declare, Variable not found \n");
+        else if(x==-1) printf("Can't declare, Variable has been already declared\n");
         else if(VT==IT ) {
             x=assignVal(TS,$1,tolower(VT),val);
-            if(x==0)
-                printf("Can't Assign, Variable not found \n");
-            else if(x==-1)
-                printf("Can't Assign, Trying to assign variable with diffrent type of value then the type declared with\n");
+            if(x==0) printf("Can't Assign, Variable not found \n");
+            else if(x==-1) printf("Can't Assign, Trying to assign variable with diffrent type of value then the type declared with\n");
         }
         else if( VT!='U') printf("Can't Assign value, Trying to assign variable with diffrent type of value then the type declared with\n");
     };
 VALUE: INTEGER{ VT='I'; val.Integer=$1; } 
     | FLOAT { VT='F'; val.Float=$1;} 
     | STRING { VT='S'; val.String=strdup($1);} 
-    | CHAR{ VT='C'; val.Char=$1; printf("%c",$1); } ;
-ListIDF:  
-    | SEPARATOR VARIDF ListIDF;
-NASSIGN: {VT='U'}
-    | ASSIGN;
-ASSIGN: 
-    AFFECT VALUE;
-ListCONSTIDF: 
-    | SEPARATOR CONSTIDF ListCONSTIDF;
-INSTRACTIONS: 
-    | AFFECTEXPRESSION INSTRACTIONS
-    | WHILE CONDITION EXECUTE INSTRACTIONSSET INSTRACTIONS
+    | CHAR{ VT='C'; val.Char=$1; } ;
+ListIDF: | SEPARATOR VARIDF ListIDF;
+NASSIGN: {VT='U';} | ASSIGN;
+ASSIGN: AFFECT VALUE;
+ListCONSTIDF:  | SEPARATOR CONSTIDF ListCONSTIDF;
+INSTRACTIONS:  | AFFECTATION  EXPRESSIONS EOI{ 
+        PreSymbol*t= inToPost(TempS);
+        quadPreSymbol(t);
+        TempS=NULL;
+    } INSTRACTIONS
+    | WHILE {
+        Symbol *t=createSymbol("&", 'i');
+        t->value.Integer=quads->length;
+        appendPreSymbol( &EtiqueL,createPreSymbol(t, 'E'));
+    } PARENTHESIS_B CONDITION PARENTHESIS_E EXECUTE{
+        Symbol *t=createSymbol("&", 'i');
+        PreSymbol *p=createPreSymbol(t, 'E');
+        appendPreSymbol( &EtiqueE,p);
+        pushQuad(createPreSymbol(NULL,'F'),p,quads->tail->res,NULL);
+    }
+        INSTRACTIONSSET { 
+            PreSymbol *pp= poppPreSymbol(&EtiqueL);
+            pushQuad(createPreSymbol(NULL,'J'),pp,NULL,NULL);
+            pp= poppPreSymbol(&EtiqueE);
+            pp->ref->value.Integer=quads->length;
+            printf("\n<Use Etique %d>\n",pp->ref->value.Integer);
+        } INSTRACTIONS
     | WHENINSTRACTION INSTRACTIONS;
-AFFECTEXPRESSION: AFFECTATION VALIDFP EXPRESSIONS EOI{
-    printList(TempS);
-};
-AFFECTATION: IDF AFFECT{
-    temp=getSymbol(TS,$1);
-    if(temp==NULL)
-            printf("IDF not found!!");
-    else if(temp->type=='U')
-        printf("Can't access IDF, IDF not declared");
-    else {
-        pushSymbol(&TempS,temp);
-        temp=createSymbol(":=",'A');
-        pushSymbol(&TempS,temp);
-        
+AFFECTATION: IDF {
+        temp=getSymbol(TS,$1);
+        if(temp==NULL) printf("IDF not found!!");
+        else if(temp->type=='U') printf("Can't access IDF, IDF not declared");
+        else pushPreSymbol(&TempS,createPreSymbol(temp,'s'));
+    } AFFECT {
+        pushPreSymbol(&TempS,createPreSymbol(NULL,':'));
+    };
+WHENINSTRACTION: WHEN PARENTHESIS_B CONDITION PARENTHESIS_E DO{ 
+    printf("\n<wait for Etique>\n");
+    //create etique
+    //push etique to etique else
+    //create quadriple with etique JF
+    //create etique end
+    //push etique to etique E 
+} INSTRACTIONSSET {
+    //create jump quad to etiqueE using top
+} OTHERWISEINSTRACTIONS ;
+OTHERWISEINSTRACTIONS: { 
+        printf("\n<create end Etique>\n"); 
+        //assign val to etique E
+        //pop it out
     }
-    //push(&TempS,)
-    
-};
-WHENINSTRACTION: 
-    WHEN CONDITION DO INSTRACTIONSSET OTHERWISEINSTRACTIONS ;
-OTHERWISEINSTRACTIONS: 
     | OTHERWISE OTHERWISEWHENINSTRACTIONS;
-OTHERWISEWHENINSTRACTIONS: 
-    WHENINSTRACTION INSTRACTIONSSET|INSTRACTIONSSET ;
-INSTRACTIONSSET: 
-    C_BRACKETS_B INSTRACTIONS C_BRACKETS_E;
-CONDITION: 
-    VALIDFP 
-    | PARENTHESIS_B CONDITION PARENTHESIS_E
-    | VALIDFP LOGIC_OP CONDITION;
-EXPRESSIONS:  
-    | ARTH_OP VALIDFP EXPRESSIONS;
-VALIDFP: 
-    IDF{
-        Symbol * temp=getSymbol(TS,$1);
-        if(temp==NULL)
-            printf("IDF not found!!");
-        else if(temp->type=='U')
-            printf("Can't access IDF, IDF not declared");
+OTHERWISEWHENINSTRACTIONS: WHENINSTRACTION
+    | INSTRACTIONSSET { 
+        printf("\n<create Etique Otherwise>\n");
+        //assign val to etique E
+        //pop it out
+    };
+INSTRACTIONSSET: C_BRACKETS_B INSTRACTIONS C_BRACKETS_E;
+CONDITION: VALIDFP LOGIC_OP  { pushPreSymbol(&TempS,createPreSymbol(NULL,$2[0]));} 
+    VALIDFP{
+        PreSymbol*t= inToPost(TempS);
+        quadPreSymbol(t);
+        TempS=NULL;
+    };
+EXPRESSIONS: VALIDFP SUBEXPRESSIONS
+    | PARENTHESIS_B {pushPreSymbol(&TempS,createPreSymbol(NULL,'('))} EXPRESSIONS 
+        PARENTHESIS_E {pushPreSymbol(&TempS,createPreSymbol(NULL,')'))} SUBEXPRESSIONS ;
+SUBEXPRESSIONS: | ARTH_OP { pushPreSymbol(&TempS,createPreSymbol(NULL,$1[0])); } EXPRESSIONS;
+VALIDFP: IDF{
+        temp=getSymbol(TS,$1);
+        if(temp==NULL) printf("IDF not found!!");
+        else if(temp->type=='U') printf("Can't access IDF, IDF not declared");    
+        else pushPreSymbol(&TempS,createPreSymbol(temp,'s'));   
     }
-    | VALUE
+    | VALUE{
+        temp = createSymbol("#",tolower(VT));
+        setVal(temp,tolower(VT),val);
+        pushPreSymbol(&TempS,createPreSymbol(temp,'s'));
+    }
     | PROD PARENTHESIS_B PARAMETERS PARENTHESIS_E;
-PARAMETERS: 
-    VALIDFP EXPRESSIONS PARAMETERSLIST;
-PARAMETERSLIST: 
-    | SEPARATOR PARAMETERS;
+PARAMETERS:  EXPRESSIONS PARAMETERSLIST;
+PARAMETERSLIST: | SEPARATOR PARAMETERS;
 %%
 
 int yyerror(char* msg){
     char s[100];
     
-    sprintf(s,"Syntax Error %s on line %d colom %d : %s",msg, position.line,position.column-strlen(yytext),Line);
+    sprintf(s,"Syntax Error %s on line %d colom %d : %s",msg, position.line,(int)(position.column-strlen(yytext)),Line);
     printf("\033[1;31m%s\n",yytext);
     for(int i=0;i<(strlen(s)-strlen(yytext));i++){
         printf(" ");
@@ -155,12 +170,16 @@ int main(int argc, char *argv[]){
     else{
         QuadInit();
         yyparse();
-        printf("\nProgram Ended\n");
+        
         printf("\n");
+        EvaluateQuad();
+        printf("------SYMBOL TABLE----");
         printTS();
+        printf("------QUADRIPULES TABLE----");
         printQuadList();
         freeQuads();
         freeTS();
+        printf("\nProgram Ended well\n");
     } 
     
     

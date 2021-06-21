@@ -8,7 +8,7 @@ LOWERCASE [a-z]
 LETTER {UPPERCASE}|{LOWERCASE}
 Digit [0-9]
 Digit_NZ [1-9]
-LOGIC_OP LT|EQ|NE|GT|LE|GE
+LOGIC_OP |||||
 INTEGER [+-]?({Digit_NZ}{Digit}*|0)
 FLOAT {INTEGER}"."{Digit}*
 CHAR \'[^']\'
@@ -40,9 +40,14 @@ ERROR .
 "(" {LineHandle(yytext); return PARENTHESIS_B;}
 ")" {LineHandle(yytext); return PARENTHESIS_E;}
 
-{ARTH_OP} {LineHandle(yytext); return ARTH_OP;}
+{ARTH_OP} {LineHandle(yytext); yylval.mySTRING=strdup(yytext); return ARTH_OP;}
 ":=" {LineHandle(yytext); yylval.mySTRING=strdup(yytext); return AFFECT;}
-{LOGIC_OP} {LineHandle(yytext); return LOGIC_OP;}
+"LT" {LineHandle(yytext); yylval.mySTRING=strdup("<"); return LOGIC_OP;}
+"EQ" {LineHandle(yytext); yylval.mySTRING=strdup("="); return LOGIC_OP;}
+"NE" {LineHandle(yytext); yylval.mySTRING=strdup("!"); return LOGIC_OP;}
+"GT" {LineHandle(yytext); yylval.mySTRING=strdup(">"); return LOGIC_OP;}
+"LE" {LineHandle(yytext); yylval.mySTRING=strdup("l"); return LOGIC_OP;}
+"GE" {LineHandle(yytext); yylval.mySTRING=strdup("g"); return LOGIC_OP;}
 
 {TYPE} {LineHandle(yytext); yylval.mySTRING=strdup(yytext); return TYPE;}
 "CONST" {LineHandle(yytext); return CONST;}
@@ -54,7 +59,7 @@ ERROR .
 "EXECUTE" {LineHandle(yytext); return EXECUTE;}
 "DO" {LineHandle(yytext); return DO;}
 
-"CODE" {LineHandle(yytext); return CODE;}
+"CODE" {printf("%d:\t",position.line); LineHandle(yytext); return CODE;}
 "START" {LineHandle(yytext); return START;}
 "END\." {LineHandle(yytext); return END;}
 
@@ -81,7 +86,6 @@ ERROR .
     LineHandle(yytext); 
     yytext[strlen(yytext)-1]='\0';
     yylval.mySTRING=strdup(++yytext);
-    
     return STRING;
     }
 
@@ -92,7 +96,8 @@ ERROR .
     position.line+=1; 
     printf("\n%d:\t",position.line);
     free(Line);
-    };
+    Line=NULL;
+    }
 {COMMENTS} {LineHandle(yytext);}
 
 {WRONG_CHAR_LONG} {printf("CHAR has more than a character");}

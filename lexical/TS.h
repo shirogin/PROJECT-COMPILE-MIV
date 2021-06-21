@@ -25,10 +25,7 @@ void push(Symbol **head_ref, char *entity, char type)
 {
     pushSymbol(head_ref, createSymbol(entity, type));
 }
-void copySymbol(Symbol *new_node)
-{
-    return createSymbol(new_node->entity, new_node->type);
-}
+
 void pushSymbol(Symbol **head_ref, Symbol *new_node)
 {
 
@@ -58,11 +55,8 @@ Symbol *getSymbol(Symbol *head, char *entity)
 
     return current;
 }
-
-int assignVal(Symbol *head, char *entity, char type, TV value)
+int setVal(Symbol *temp, char type, TV value)
 {
-    Symbol *temp = getSymbol(head, entity);
-
     if (temp != NULL)
     {
         if (temp->type == type)
@@ -86,6 +80,11 @@ int assignVal(Symbol *head, char *entity, char type, TV value)
     }
     else
         return 0;
+}
+int assignVal(Symbol *head, char *entity, char type, TV value)
+{
+    Symbol *temp = getSymbol(head, entity);
+    return setVal(temp, type, value);
 }
 
 int declareConst(Symbol *head, char *entity, char type, TV value)
