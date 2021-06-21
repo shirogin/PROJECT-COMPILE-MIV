@@ -5,7 +5,7 @@
     } position;
     extern void printTS();
     extern Symbol *TS ;
-    PreSymbol * TempS=NULL,*EtiqueL=NULL,*EtiqueE=NULL;
+    PreSymbol * TempS=NULL,*EtiqueL=NULL,*EtiqueE=NULL,*EtiqueELSE=NULL;
     Symbol *temp=NULL;
     extern char *yytext;
     extern void freeTS();
@@ -92,7 +92,6 @@ INSTRACTIONS:  | AFFECTATION  EXPRESSIONS EOI{
             pushQuad(createPreSymbol(NULL,'J'),pp,NULL,NULL);
             pp= poppPreSymbol(&EtiqueE);
             pp->ref->value.Integer=quads->length;
-            printf("\n<Use Etique %d>\n",pp->ref->value.Integer);
         } INSTRACTIONS
     | WHENINSTRACTION INSTRACTIONS;
 AFFECTATION: IDF {
@@ -104,26 +103,46 @@ AFFECTATION: IDF {
         pushPreSymbol(&TempS,createPreSymbol(NULL,':'));
     };
 WHENINSTRACTION: WHEN PARENTHESIS_B CONDITION PARENTHESIS_E DO{ 
-    printf("\n<wait for Etique>\n");
+    Symbol *t=createSymbol("&", 'i');
     //create etique
+    PreSymbol *p=createPreSymbol(t, 'E');
     //push etique to etique else
+    appendPreSymbol( &EtiqueELSE,p);
     //create quadriple with etique JF
+    pushQuad(createPreSymbol(NULL,'F'),p,quads->tail->res,NULL);
     //create etique end
+    t=createSymbol("&", 'i');
+    p=createPreSymbol(t, 'E');
     //push etique to etique E 
+    appendPreSymbol( &EtiqueE,p);
 } INSTRACTIONSSET {
     //create jump quad to etiqueE using top
+    pushQuad(createPreSymbol(NULL,'J'),EtiqueE,NULL,NULL);
+    
 } OTHERWISEINSTRACTIONS ;
 OTHERWISEINSTRACTIONS: { 
-        printf("\n<create end Etique>\n"); 
-        //assign val to etique E
         //pop it out
+        PreSymbol *p= poppPreSymbol(&EtiqueE);
+        //assign val to etique E
+        p->ref->value.Integer=quads->length; 
     }
-    | OTHERWISE OTHERWISEWHENINSTRACTIONS;
-OTHERWISEWHENINSTRACTIONS: WHENINSTRACTION
-    | INSTRACTIONSSET { 
-        printf("\n<create Etique Otherwise>\n");
-        //assign val to etique E
+    | OTHERWISE{
+        //assign val to etiqueElse and pop it out
+        PreSymbol *p= poppPreSymbol(&EtiqueELSE);
+        p->ref->value.Integer=quads->length;        
+    } OTHERWISEWHENINSTRACTIONS;
+OTHERWISEWHENINSTRACTIONS: WHENINSTRACTION {
         //pop it out
+        PreSymbol *p= poppPreSymbol(&EtiqueE);
+        //assign val to etique E
+        p->ref->value.Integer=quads->length;  
+    }
+    | INSTRACTIONSSET { 
+        //pop it out
+        PreSymbol *p= poppPreSymbol(&EtiqueE);
+        //assign val to etique E
+        p->ref->value.Integer=quads->length;
+        pushQuad(createPreSymbol(NULL,'J'),p,NULL,NULL);
     };
 INSTRACTIONSSET: C_BRACKETS_B INSTRACTIONS C_BRACKETS_E;
 CONDITION: VALIDFP LOGIC_OP  { pushPreSymbol(&TempS,createPreSymbol(NULL,$2[0]));} 
@@ -172,11 +191,11 @@ int main(int argc, char *argv[]){
         yyparse();
         
         printf("\n");
+        printf("------QUADRIPULES TABLE----");
+        printQuadList();
         EvaluateQuad();
         printf("------SYMBOL TABLE----");
         printTS();
-        printf("------QUADRIPULES TABLE----");
-        printQuadList();
         freeQuads();
         freeTS();
         printf("\nProgram Ended well\n");

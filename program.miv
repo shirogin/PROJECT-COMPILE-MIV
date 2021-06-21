@@ -3,22 +3,6 @@ CODE
     STRING S1,S2:="Yolo";
     CONST INTEGER N:=20;
 START
-    S1:= S2 + " not True";
-    WHILE (I LT N)
-    EXECUTE 
-    {
-        S:= S + I;
-        I:= I + 1;
-        WHEN ( I LT 5) 
-        DO
-        {
-            I:= I + 1;
-        }
-        OTHERWISE WHEN ( I GT 10) 
-        DO
-        {
-            I:= I + 2;
-        }
-    }
+    PROD(I+S,I*2,I*3);
     
 END.

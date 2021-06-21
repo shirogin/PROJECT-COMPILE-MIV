@@ -383,7 +383,7 @@ void EvaluateQuad()
         {
             if ((op3->type == 'i' && op3->value.Integer == 0) || (op3->type == 'f' && op3->value.Float == 0))
             {
-                head = getIndex(op2->value.Integer);
+                head = getIndex(op2->value.Integer - 1);
             }
             break;
         }
