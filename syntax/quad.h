@@ -2,6 +2,8 @@
 //-----------------------------------Quad Settings ------------------------------
 const int QuadNodeSize = sizeof(quad_node);
 const int QuadSize = sizeof(Quad);
+int resNum;
+char resName[20];
 Quad *quads;
 void QuadInit()
 {
@@ -93,7 +95,9 @@ void quadPreSymbol(PreSymbol *postfix)
                     printf("semantic error : data type aren't the same");
                     exit(-1);
                 }
-                res = createPreSymbol(createSymbol("&", type), 's');
+                sprintf(resName, "TEMP %d", resNum);
+                resNum++;
+                res = createPreSymbol(createSymbol(resName, type), 's');
                 appendPreSymbol(&pile, res);
                 break;
             }
@@ -129,9 +133,9 @@ void printQuadList()
     int i = 1;
     while (head != NULL)
     {
-        printf("%d- | %c | %s | %s | %s |", i,
+        printf("%d- ( %c , %s , %s , %s )", i,
                head->op1->type,
-               head->op2->ref->entity,
+               head->op2 == NULL ? "NULL" : head->op2->ref->entity,
                head->op3 == NULL ? "NULL" : head->op3->ref->entity,
                head->res == NULL ? "NULL" : head->res->ref->entity);
         head = head->next;
@@ -150,254 +154,301 @@ quad_node *getIndex(int x)
     }
     return head;
 }
+int EvaluationArth(char type, Symbol *op2, Symbol *op3, Symbol *res)
+{
+    switch (type)
+    {
+    case '+':
+    {
+        switch (res->type)
+        {
+        case 'i':
+            res->value.Integer = op2->value.Integer + op3->value.Integer;
+            break;
+        case 'f':
+            res->value.Float = op2->value.Float + op3->value.Float;
+            break;
+        case 'c':
+            res->value.Char = (char)((int)op2->value.Char + (int)op3->value.Char);
+            break;
+        case 's':
+        {
+            res->value.String = (char *)malloc(sizeof(char) * (strlen(op3->value.String) + strlen(op2->value.String)));
+            strcpy(res->value.String, op2->value.String);
+            strcat(res->value.String, op3->value.String);
+            break;
+        }
+        default:
+            printf("semantic error : unknown type");
+        }
+        return 1;
+    }
+    case '-':
+    {
+        switch (res->type)
+        {
+        case 'i':
+            res->value.Integer = op2->value.Integer - op3->value.Integer;
+            break;
+        case 'f':
+            res->value.Float = op2->value.Float - op3->value.Float;
+            break;
+        default:
+        {
+            printf("semantic error : This operation '-' can only be applied to int or floats");
+            exit(-1);
+        }
+        }
+        return 1;
+    }
+    case '*':
+    {
+        switch (res->type)
+        {
+        case 'i':
+            res->value.Integer = op2->value.Integer * op3->value.Integer;
+            break;
+        case 'f':
+            res->value.Float = op2->value.Float * op3->value.Float;
+            break;
+        default:
+        {
+            printf("semantic error : This operation '*' can only be applied to int or floats");
+            exit(-1);
+        }
+        }
+        return 1;
+    }
+    case '/':
+    {
+        switch (res->type)
+        {
+        case 'i':
+        {
+            if (op3->value.Integer == 0)
+            {
+                printf("semantic error : division by 0");
+                exit(-1);
+            }
+            res->value.Integer = op2->value.Integer / op3->value.Integer;
+            break;
+        }
+        case 'f':
+        {
+            if (op3->value.Float == 0)
+            {
+                printf("semantic error : division by 0");
+                exit(-1);
+            }
+            res->value.Float = op2->value.Float / op3->value.Float;
+            break;
+        }
+        default:
+        {
+            printf("semantic error : This operation '/' can only be applied to int or floats");
+            exit(-1);
+        }
+        }
+        return 1;
+    }
+    }
+    return 0;
+}
 void EvaluateQuad()
 {
     quad_node *head = quads->head;
     while (head != NULL)
     {
         PreSymbol *op1 = head->op1;
-        Symbol *op2 = head->op2->ref,
+        Symbol *op2 = head->op2 == NULL ? NULL : head->op2->ref,
                *op3 = head->op3 == NULL ? NULL : head->op3->ref,
                *res = head->res == NULL ? NULL : head->res->ref;
-        switch (op1->type)
+
+        if (EvaluationArth(op1->type, op2, op3, res) == 0)
         {
-        case '+':
-        {
-            switch (res->type)
+            switch (op1->type)
             {
-            case 'i':
-                res->value.Integer = op2->value.Integer + op3->value.Integer;
-                break;
-            case 'f':
-                res->value.Float = op2->value.Float + op3->value.Float;
-                break;
-            case 'c':
-                res->value.Char = (char)((int)op2->value.Char + (int)op3->value.Char);
-                break;
-            case 's':
+            case ':':
             {
-                res->value.String = (char *)malloc(sizeof(char) * (strlen(op3->value.String) + strlen(op2->value.String)));
-                strcpy(res->value.String, op2->value.String);
-                strcat(res->value.String, op3->value.String);
-                break;
-            }
-            default:
-                printf("semantic error : unknown type");
-            }
-            break;
-        }
-        case '-':
-        {
-            switch (res->type)
-            {
-            case 'i':
-                res->value.Integer = op2->value.Integer - op3->value.Integer;
-                break;
-            case 'f':
-                res->value.Float = op2->value.Float - op3->value.Float;
-                break;
-            default:
-            {
-                printf("semantic error : This operation '-' can only be applied to int or floats");
-                exit(-1);
-            }
-            }
-            break;
-        }
-        case '*':
-        {
-            switch (res->type)
-            {
-            case 'i':
-                res->value.Integer = op2->value.Integer * op3->value.Integer;
-                break;
-            case 'f':
-                res->value.Float = op2->value.Float * op3->value.Float;
-                break;
-            default:
-            {
-                printf("semantic error : This operation '*' can only be applied to int or floats");
-                exit(-1);
-            }
-            }
-            break;
-        }
-        case '/':
-        {
-            switch (res->type)
-            {
-            case 'i':
-            {
-                if (op3->value.Integer == 0)
+                if (res->type == 'I' || res->type == 'F' || res->type == 'C' || res->type == 'S')
                 {
-                    printf("semantic error : division by 0");
+                    printf("Semantic Error : you can't affect values to constants");
                     exit(-1);
                 }
-                res->value.Integer = op2->value.Integer / op3->value.Integer;
+                res->value = op2->value;
                 break;
             }
-            case 'f':
+            case '<':
             {
-                if (op3->value.Float == 0)
+                switch (res->type)
                 {
-                    printf("semantic error : division by 0");
+                case 'i':
+                {
+                    res->value.Integer = (op2->value.Integer < op3->value.Integer) ? 1 : 0;
+
+                    break;
+                }
+                case 'f':
+                {
+                    res->value.Float = (op2->value.Float < op3->value.Float) ? 1 : 0;
+
+                    break;
+                }
+                default:
+                {
+                    printf("semantic error : This operation 'LT' can only be applied to int or floats");
                     exit(-1);
                 }
-                res->value.Float = op2->value.Float / op3->value.Float;
-                break;
-            }
-            default:
-            {
-                printf("semantic error : This operation '/' can only be applied to int or floats");
-                exit(-1);
-            }
-            }
-            break;
-        }
-        case ':':
-        {
-            res->value = op2->value;
-            break;
-        }
-        case '<':
-        {
-            switch (res->type)
-            {
-            case 'i':
-            {
-                res->value.Integer = (op2->value.Integer < op3->value.Integer) ? 1 : 0;
+                }
 
                 break;
             }
-            case 'f':
+            case '=':
             {
-                res->value.Float = (op2->value.Float < op3->value.Float) ? 1 : 0;
-
+                switch (res->type)
+                {
+                case 'i':
+                    res->value.Integer = (op2->value.Integer == op3->value.Integer) ? 1 : 0;
+                    break;
+                case 'f':
+                    res->value.Float = (op2->value.Float == op3->value.Float) ? 1 : 0;
+                    break;
+                default:
+                {
+                    printf("semantic error : This operation 'EQ' can only be applied to int or floats");
+                    exit(-1);
+                }
+                }
                 break;
             }
-            default:
+            case '!':
             {
-                printf("semantic error : This operation 'LT' can only be applied to int or floats");
-                exit(-1);
-            }
-            }
-
-            break;
-        }
-        case '=':
-        {
-            switch (res->type)
-            {
-            case 'i':
-                res->value.Integer = (op2->value.Integer == op3->value.Integer) ? 1 : 0;
+                switch (res->type)
+                {
+                case 'i':
+                    res->value.Integer = (op2->value.Integer != op3->value.Integer) ? 1 : 0;
+                    break;
+                case 'f':
+                    res->value.Float = (op2->value.Float != op3->value.Float) ? 1 : 0;
+                    break;
+                default:
+                {
+                    printf("semantic error : This operation 'NE' can only be applied to int or floats");
+                    exit(-1);
+                }
+                }
                 break;
-            case 'f':
-                res->value.Float = (op2->value.Float == op3->value.Float) ? 1 : 0;
-                break;
-            default:
+            }
+            case '>':
             {
-                printf("semantic error : This operation 'EQ' can only be applied to int or floats");
-                exit(-1);
-            }
-            }
-            break;
-        }
-        case '!':
-        {
-            switch (res->type)
-            {
-            case 'i':
-                res->value.Integer = (op2->value.Integer != op3->value.Integer) ? 1 : 0;
+                switch (res->type)
+                {
+                case 'i':
+                    res->value.Integer = (op2->value.Integer > op3->value.Integer) ? 1 : 0;
+                    break;
+                case 'f':
+                    res->value.Float = (op2->value.Float > op3->value.Float) ? 1 : 0;
+                    break;
+                default:
+                {
+                    printf("semantic error : This operation 'GT' can only be applied to int or floats");
+                    exit(-1);
+                }
+                }
                 break;
-            case 'f':
-                res->value.Float = (op2->value.Float != op3->value.Float) ? 1 : 0;
-                break;
-            default:
+            }
+            case 'l':
             {
-                printf("semantic error : This operation 'NE' can only be applied to int or floats");
-                exit(-1);
-            }
-            }
-            break;
-        }
-        case '>':
-        {
-            switch (res->type)
-            {
-            case 'i':
-                res->value.Integer = (op2->value.Integer > op3->value.Integer) ? 1 : 0;
+                switch (res->type)
+                {
+                case 'i':
+                    res->value.Integer = (op2->value.Integer <= op3->value.Integer) ? 1 : 0;
+                    break;
+                case 'f':
+                    res->value.Float = (op2->value.Float <= op3->value.Float) ? 1 : 0;
+                    break;
+                default:
+                {
+                    printf("semantic error : This operation 'LE' can only be applied to int or floats");
+                    exit(-1);
+                }
+                }
                 break;
-            case 'f':
-                res->value.Float = (op2->value.Float > op3->value.Float) ? 1 : 0;
-                break;
-            default:
+            }
+            case 'g':
             {
-                printf("semantic error : This operation 'GT' can only be applied to int or floats");
-                exit(-1);
-            }
-            }
-            break;
-        }
-        case 'l':
-        {
-            switch (res->type)
-            {
-            case 'i':
-                res->value.Integer = (op2->value.Integer <= op3->value.Integer) ? 1 : 0;
+                switch (res->type)
+                {
+                case 'i':
+                    res->value.Integer = (op2->value.Integer >= op3->value.Integer) ? 1 : 0;
+                    break;
+                case 'f':
+                    res->value.Float = (op2->value.Float >= op3->value.Float) ? 1 : 0;
+                    break;
+                default:
+                {
+                    printf("semantic error : This operation 'GE' can only be applied to int or floats");
+                    exit(-1);
+                }
+                }
                 break;
-            case 'f':
-                res->value.Float = (op2->value.Float <= op3->value.Float) ? 1 : 0;
-                break;
-            default:
-            {
-                printf("semantic error : This operation 'LE' can only be applied to int or floats");
-                exit(-1);
             }
-            }
-            break;
-        }
-        case 'g':
-        {
-            switch (res->type)
-            {
-            case 'i':
-                res->value.Integer = (op2->value.Integer >= op3->value.Integer) ? 1 : 0;
-                break;
-            case 'f':
-                res->value.Float = (op2->value.Float >= op3->value.Float) ? 1 : 0;
-                break;
-            default:
-            {
-                printf("semantic error : This operation 'GE' can only be applied to int or floats");
-                exit(-1);
-            }
-            }
-            break;
-        }
-        case 'J':
-        {
-            head = getIndex(op2->value.Integer - 1);
-            break;
-        }
-        case 'F':
-        {
-            if ((op3->type == 'i' && op3->value.Integer == 0) || (op3->type == 'f' && op3->value.Float == 0))
+            case 'J':
             {
                 head = getIndex(op2->value.Integer - 1);
+                break;
             }
-            break;
-        }
-        case 'T':
-        {
-            if ((op3->type == 'i' && op3->value.Integer == 1) || (op3->type == 'f' && op3->value.Float == 1))
+            case 'F':
             {
-                head = getIndex(op2->value.Integer);
+                if ((op3->type == 'i' && op3->value.Integer == 0) || (op3->type == 'f' && op3->value.Float == 0))
+                {
+                    head = getIndex(op2->value.Integer - 1);
+                }
+                break;
             }
-            break;
-        }
+            case 'T':
+            {
+                if ((op3->type == 'i' && op3->value.Integer == 1) || (op3->type == 'f' && op3->value.Float == 1))
+                {
+                    head = getIndex(op2->value.Integer - 1);
+                }
+                break;
+            }
+            case 'P':
+            {
+                Symbol *Tol = res;
+                head = head->next;
+                while (head != NULL && head->op1->type != 'p')
+                {
+                    op1 = head->op1;
+                    res = head->res == NULL ? NULL : head->res->ref;
+                    if (op1->type != 'S')
+                    {
+                        printf("<%c>\n", head->op1->type);
+                        op2 = head->op2 == NULL ? NULL : head->op2->ref;
+                        op3 = head->op3 == NULL ? NULL : head->op3->ref;
+                        EvaluationArth(op1->type, op2, op3, res);
+                    }
+                    else
+                    {
+                        if (res->type == 'i' && res->value.Integer > 0)
+                        {
+                            Tol->value.Integer++;
+                        }
+                        else if (res->type == 'f' && res->value.Float > 0)
+                        {
+                            Tol->value.Float++;
+                        }
+                    }
+                    head = head->next;
+                }
 
-        default:
-            break;
+                break;
+            }
+            default:
+                printf("Semantic error: Operation unknown");
+                break;
+            }
         }
         if (head)
             head = head->next;

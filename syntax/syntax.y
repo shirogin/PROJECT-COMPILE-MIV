@@ -5,7 +5,7 @@
     } position;
     extern void printTS();
     extern Symbol *TS ;
-    PreSymbol * TempS=NULL,*EtiqueL=NULL,*EtiqueE=NULL,*EtiqueELSE=NULL;
+    PreSymbol * TempS=NULL,*TempS2=NULL,*EtiqueL=NULL,*EtiqueE=NULL,*EtiqueELSE=NULL;
     Symbol *temp=NULL;
     extern char *yytext;
     extern void freeTS();
@@ -72,13 +72,13 @@ ListIDF: | SEPARATOR VARIDF ListIDF;
 NASSIGN: {VT='U';} | ASSIGN;
 ASSIGN: AFFECT VALUE;
 ListCONSTIDF:  | SEPARATOR CONSTIDF ListCONSTIDF;
-INSTRACTIONS:  | AFFECTATION  EXPRESSIONS EOI{ 
+INSTRACTIONS:  | AFFECTATION  EXPRESSIONSPROD EOI{ 
         PreSymbol*t= inToPost(TempS);
         quadPreSymbol(t);
         TempS=NULL;
     } INSTRACTIONS
     | WHILE {
-        Symbol *t=createSymbol("&", 'i');
+        Symbol *t=createSymbol("ETIQUE LOOP", 'i');
         t->value.Integer=quads->length;
         appendPreSymbol( &EtiqueL,createPreSymbol(t, 'E'));
     } PARENTHESIS_B CONDITION PARENTHESIS_E EXECUTE{
@@ -86,24 +86,40 @@ INSTRACTIONS:  | AFFECTATION  EXPRESSIONS EOI{
         PreSymbol *p=createPreSymbol(t, 'E');
         appendPreSymbol( &EtiqueE,p);
         pushQuad(createPreSymbol(NULL,'F'),p,quads->tail->res,NULL);
-    }
-        INSTRACTIONSSET { 
-            PreSymbol *pp= poppPreSymbol(&EtiqueL);
-            pushQuad(createPreSymbol(NULL,'J'),pp,NULL,NULL);
-            pp= poppPreSymbol(&EtiqueE);
-            pp->ref->value.Integer=quads->length;
-        } INSTRACTIONS
+    } INSTRACTIONSSET { 
+        PreSymbol *pp= poppPreSymbol(&EtiqueL);
+        pushQuad(createPreSymbol(NULL,'J'),pp,NULL,NULL);
+        pp= poppPreSymbol(&EtiqueE);
+        pp->ref->value.Integer=quads->length;
+    } INSTRACTIONS
     | WHENINSTRACTION INSTRACTIONS;
+EXPRESSIONSPROD: EXPRESSIONS
+    |PROD {
+        TempS2=TempS;
+        TempS=NULL;
+        PreSymbol *p=createPreSymbol(createSymbol("PROD RESULTS", tolower(VT)), 's');
+        pushPreSymbol(&TempS2,p);
+        pushQuad(createPreSymbol(NULL, 'P'), NULL, NULL, p);
+    }PARENTHESIS_B PARAMETERS PARENTHESIS_E{
+        //QUad the prod
+        pushQuad(createPreSymbol(NULL, 'S'), NULL, NULL, quads->tail->res);
+        TempS=TempS2;
+        TempS2=NULL;
+        pushQuad(createPreSymbol(NULL, 'p'), NULL, NULL, NULL);
+    }
 AFFECTATION: IDF {
         temp=getSymbol(TS,$1);
         if(temp==NULL) printf("IDF not found!!");
         else if(temp->type=='U') printf("Can't access IDF, IDF not declared");
-        else pushPreSymbol(&TempS,createPreSymbol(temp,'s'));
+        else{
+            VT=temp->type;
+            pushPreSymbol(&TempS,createPreSymbol(temp,'s'));
+        } 
     } AFFECT {
         pushPreSymbol(&TempS,createPreSymbol(NULL,':'));
     };
 WHENINSTRACTION: WHEN PARENTHESIS_B CONDITION PARENTHESIS_E DO{ 
-    Symbol *t=createSymbol("&", 'i');
+    Symbol *t=createSymbol("ETIQUE ELSE", 'i');
     //create etique
     PreSymbol *p=createPreSymbol(t, 'E');
     //push etique to etique else
@@ -111,7 +127,7 @@ WHENINSTRACTION: WHEN PARENTHESIS_B CONDITION PARENTHESIS_E DO{
     //create quadriple with etique JF
     pushQuad(createPreSymbol(NULL,'F'),p,quads->tail->res,NULL);
     //create etique end
-    t=createSymbol("&", 'i');
+    t=createSymbol("ETIQUE END", 'i');
     p=createPreSymbol(t, 'E');
     //push etique to etique E 
     appendPreSymbol( &EtiqueE,p);
@@ -165,17 +181,21 @@ VALIDFP: IDF{
         temp = createSymbol("#",tolower(VT));
         setVal(temp,tolower(VT),val);
         pushPreSymbol(&TempS,createPreSymbol(temp,'s'));
-    }
-    | PROD PARENTHESIS_B PARAMETERS PARENTHESIS_E;
-PARAMETERS:  EXPRESSIONS PARAMETERSLIST;
-PARAMETERSLIST: | SEPARATOR PARAMETERS;
+    };
+PARAMETERS:  EXPRESSIONS{
+    PreSymbol*t= inToPost(TempS);
+    quadPreSymbol(t);
+    TempS=NULL;
+} PARAMETERSLIST;
+PARAMETERSLIST: | SEPARATOR{
+    pushQuad(createPreSymbol(NULL, 'S'), NULL, NULL, quads->tail->res);
+} PARAMETERS;
 %%
 
 int yyerror(char* msg){
     char s[100];
-    
-    sprintf(s,"Syntax Error %s on line %d colom %d : %s",msg, position.line,(int)(position.column-strlen(yytext)),Line);
-    printf("\033[1;31m%s\n",yytext);
+    sprintf(s,"\nSyntax Error %s on line %d colom %d : %s",msg, position.line,(int)(position.column-strlen(yytext)),Line);
+    printf("\033[1;31m%s\n",s);
     for(int i=0;i<(strlen(s)-strlen(yytext));i++){
         printf(" ");
     }
@@ -187,12 +207,13 @@ int main(int argc, char *argv[]){
     if (yyin == NULL)
         printf("File doesn't exist");
     else{
+        resNum=0;
         QuadInit();
         yyparse();
-        
         printf("\n");
         printf("------QUADRIPULES TABLE----");
         printQuadList();
+        printf("------EVALUATION QUADRIPULES----\n");
         EvaluateQuad();
         printf("------SYMBOL TABLE----");
         printTS();

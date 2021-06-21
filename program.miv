@@ -1,8 +1,7 @@
 CODE
-    INTEGER I:=1,S:=0;
+    FLOAT I:=1.0,S:=0.0;
     STRING S1,S2:="Yolo";
     CONST INTEGER N:=20;
 START
-    PROD(I+S,I*2,I*3);
-    
+    S:= PROD(I + 2.0,I * -4.0,I * 5.0);
 END.

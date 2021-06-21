@@ -12,7 +12,9 @@ struct PreSymbol
      * W While
      * s Symbole
      * I IF
-     * P Prods
+     * P Prods starts
+     * p prod ends
+     * S seprator prod
      * & temp
      * J jump
      * T jump if trues
