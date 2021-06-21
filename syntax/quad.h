@@ -388,6 +388,7 @@ void EvaluateQuad()
                 default:
                 {
                     printf("semantic error : This operation 'GE' can only be applied to int or floats");
+                    //SemanticError("This operation 'GE' can only be applied to int or floats");
                     exit(-1);
                 }
                 }
@@ -424,7 +425,6 @@ void EvaluateQuad()
                     res = head->res == NULL ? NULL : head->res->ref;
                     if (op1->type != 'S')
                     {
-                        printf("<%c>\n", head->op1->type);
                         op2 = head->op2 == NULL ? NULL : head->op2->ref;
                         op3 = head->op3 == NULL ? NULL : head->op3->ref;
                         EvaluationArth(op1->type, op2, op3, res);
