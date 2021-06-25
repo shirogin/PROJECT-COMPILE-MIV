@@ -79,7 +79,7 @@ void quadPreSymbol(PreSymbol *postfix)
                 res = poppPreSymbol(&pile);
                 if (type != tolower(res->ref->type))
                 {
-                    printf("semantic error : data type aren't the same");
+                    printf("semantic error: different data type");
                     exit(-1);
                 }
 
@@ -92,7 +92,7 @@ void quadPreSymbol(PreSymbol *postfix)
                 char type = tolower(op2->ref->type);
                 if (type != tolower(op3->ref->type))
                 {
-                    printf("semantic error : data type aren't the same");
+                    printf("semantic error: different data type");
                     exit(-1);
                 }
                 sprintf(resName, "TEMP %d", resNum);
@@ -179,7 +179,7 @@ int EvaluationArth(char type, Symbol *op2, Symbol *op3, Symbol *res)
             break;
         }
         default:
-            printf("semantic error : unknown type");
+            printf("semantic error: unknown type");
         }
         return 1;
     }
@@ -195,7 +195,7 @@ int EvaluationArth(char type, Symbol *op2, Symbol *op3, Symbol *res)
             break;
         default:
         {
-            printf("semantic error : This operation '-' can only be applied to int or floats");
+            printf("semantic error: operation '-' can only be applied between ints or floats");
             exit(-1);
         }
         }
@@ -213,7 +213,7 @@ int EvaluationArth(char type, Symbol *op2, Symbol *op3, Symbol *res)
             break;
         default:
         {
-            printf("semantic error : This operation '*' can only be applied to int or floats");
+            printf("semantic error : This operation '*' can only be applied between ints or floats");
             exit(-1);
         }
         }
@@ -245,7 +245,7 @@ int EvaluationArth(char type, Symbol *op2, Symbol *op3, Symbol *res)
         }
         default:
         {
-            printf("semantic error : This operation '/' can only be applied to int or floats");
+            printf("semantic error : This operation '/' can only be applied between ints or floats");
             exit(-1);
         }
         }
@@ -272,7 +272,7 @@ void EvaluateQuad()
             {
                 if (res->type == 'I' || res->type == 'F' || res->type == 'C' || res->type == 'S')
                 {
-                    printf("Semantic Error : you can't affect values to constants");
+                    printf("Semantic Error: Assignment to constant variable.");
                     exit(-1);
                 }
                 res->value = op2->value;
@@ -296,7 +296,7 @@ void EvaluateQuad()
                 }
                 default:
                 {
-                    printf("semantic error : This operation 'LT' can only be applied to int or floats");
+                    printf("semantic error : The operation 'LT' can only be applied between ints or floats");
                     exit(-1);
                 }
                 }
@@ -315,7 +315,7 @@ void EvaluateQuad()
                     break;
                 default:
                 {
-                    printf("semantic error : This operation 'EQ' can only be applied to int or floats");
+                    printf("semantic error : The operation 'EQ' can only be applied between ints or floats");
                     exit(-1);
                 }
                 }
@@ -333,7 +333,7 @@ void EvaluateQuad()
                     break;
                 default:
                 {
-                    printf("semantic error : This operation 'NE' can only be applied to int or floats");
+                    printf("semantic error : The operation 'NE' can only be applied between ints or floats");
                     exit(-1);
                 }
                 }
@@ -351,7 +351,7 @@ void EvaluateQuad()
                     break;
                 default:
                 {
-                    printf("semantic error : This operation 'GT' can only be applied to int or floats");
+                    printf("semantic error : The operation 'GT' can only be applied between ints or floats");
                     exit(-1);
                 }
                 }
@@ -369,7 +369,7 @@ void EvaluateQuad()
                     break;
                 default:
                 {
-                    printf("semantic error : This operation 'LE' can only be applied to int or floats");
+                    printf("semantic error : The operation 'LE' can only be applied between ints or floats");
                     exit(-1);
                 }
                 }
@@ -387,7 +387,7 @@ void EvaluateQuad()
                     break;
                 default:
                 {
-                    printf("semantic error : This operation 'GE' can only be applied to int or floats");
+                    printf("semantic error : The operation 'GE' can only be applied between ints or floats");
                     exit(-1);
                 }
                 }

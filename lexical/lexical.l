@@ -100,9 +100,9 @@ ERROR .
     }
 {COMMENTS} {LineHandle(yytext);}
 
-{WRONG_CHAR_LONG} {printf("CHAR has more than a character");}
-{WRONG_CHAR_EMPTY} {printf("CHAR is Empty");}
-{WRONG_STR_NL} {printf("String has New line");}
-{WRONG_STR_EMPTY} {printf("String Empty");}
-{WRONG_STR_not_closed} {printf("String not closed");}
-{ERROR} {printf("Unexpected token %s",yytext);}
+{WRONG_CHAR_LONG} { printLexicalError(yytext, "CHAR has more than a character"); }
+{WRONG_CHAR_EMPTY} { printLexicalError(yytext, "CHAR is Empty"); }
+{WRONG_STR_NL} {printLexicalError(yytext, "String has New line");}
+{WRONG_STR_EMPTY} {printLexicalError(yytext, "String Empty");}
+{WRONG_STR_not_closed} {printLexicalError(yytext, "String not closed");}
+{ERROR} {printLexicalError(yytext, "String Empty");}

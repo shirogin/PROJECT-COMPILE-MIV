@@ -36,3 +36,8 @@ void Insert(char *Entity, char type)
     if (getSymbol(TS, Entity) == NULL)
         push(&TS, Entity, type);
 }
+int printLexicalError(char *entity, char *msg)
+{
+    sprintf(errorMsg, "%s: Line %d column %d", msg, position.line, position.column);
+    printf("\n\033[1;35mLexical Error: %s : %s \n\033[0m", errorMsg, yytext);
+}

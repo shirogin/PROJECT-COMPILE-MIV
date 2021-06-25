@@ -5,6 +5,8 @@
 typedef struct Symbol Symbol;
 typedef union TV TV;
 
+char errorMsg[200];
+
 union TV
 {
     char Char;

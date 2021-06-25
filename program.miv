@@ -1,5 +1,6 @@
 CODE
     FLOAT I:=1.0,S:=0.0;
+    CHAR C:='';
     STRING S1,S2:="Yolo";
     CONST INTEGER N:=20;
 START
